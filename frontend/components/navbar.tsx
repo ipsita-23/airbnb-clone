@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Globe, Menu, Search, ChevronLeft, ChevronRight, Plus, Minus } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { label: 'All',         icon: 'https://a0.muscache.com/im/pictures/AirbnbPlatformAssets/AirbnbPlatformAssets-search-bar-icons/original/a811de29-114f-43a0-b8c5-698d4564bd04.png?im_w=240' },
-  { label: 'Homes',       icon: 'https://a0.muscache.com/im/pictures/airbnb-platform-assets/AirbnbPlatformAssets-search-bar-icons/original/4aae4ed7-5939-4e76-b100-e69440ebeae4.png?im_w=240' },
+  { label: 'All', icon: 'https://a0.muscache.com/im/pictures/AirbnbPlatformAssets/AirbnbPlatformAssets-search-bar-icons/original/a811de29-114f-43a0-b8c5-698d4564bd04.png?im_w=240' },
+  { label: 'Homes', icon: 'https://a0.muscache.com/im/pictures/airbnb-platform-assets/AirbnbPlatformAssets-search-bar-icons/original/4aae4ed7-5939-4e76-b100-e69440ebeae4.png?im_w=240' },
   { label: 'Experiences', icon: 'https://a0.muscache.com/im/pictures/airbnb-platform-assets/AirbnbPlatformAssets-search-bar-icons/original/1e24b1c9-b070-48d9-8a70-91aae3151830.png?im_w=240' },
-  { label: 'Services',    icon: 'https://a0.muscache.com/im/pictures/airbnb-platform-assets/AirbnbPlatformAssets-search-bar-icons/original/2bf5d36d-e731-4465-a8ef-91abbf2ae8ce.png?im_w=240' },
+  { label: 'Services', icon: 'https://a0.muscache.com/im/pictures/airbnb-platform-assets/AirbnbPlatformAssets-search-bar-icons/original/2bf5d36d-e731-4465-a8ef-91abbf2ae8ce.png?im_w=240' },
 ];
 
 const SUGGESTIONS = [
@@ -24,8 +24,8 @@ const SUGGESTIONS = [
   { city: 'Goa', country: 'India' },
 ];
 
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DAYS   = ['S','M','T','W','T','F','S'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 function toDateKey(y: number, m: number, d: number) {
   return `${y}-${m}-${d}`;
@@ -42,9 +42,9 @@ function MonthCalendar({
   onDayClick: (key: string, d: number, y: number, m: number) => void;
 }) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const offset      = new Date(year, month, 1).getDay();
-  const today       = new Date();
-  const cells       = Array.from({ length: offset + daysInMonth }, (_, i) => i < offset ? null : i - offset + 1);
+  const offset = new Date(year, month, 1).getDay();
+  const today = new Date();
+  const cells = Array.from({ length: offset + daysInMonth }, (_, i) => i < offset ? null : i - offset + 1);
 
   return (
     <div className="flex-1 min-w-[280px]">
@@ -63,13 +63,13 @@ function MonthCalendar({
         ))}
         {cells.map((day, i) => {
           if (!day) return <div key={i} />;
-          const key      = toDateKey(year, month, day);
+          const key = toDateKey(year, month, day);
           const cellDate = new Date(year, month, day);
-          const isToday  = cellDate.toDateString() === today.toDateString();
-          const isPast   = cellDate < today && !isToday;
-          const isStart  = key === startKey;
-          const isEnd    = key === endKey;
-          const inRange  = startKey && endKey && key > startKey && key < endKey;
+          const isToday = cellDate.toDateString() === today.toDateString();
+          const isPast = cellDate < today && !isToday;
+          const isStart = key === startKey;
+          const isEnd = key === endKey;
+          const inRange = startKey && endKey && key > startKey && key < endKey;
 
           return (
             <button
@@ -121,19 +121,31 @@ function GuestCounter({ label, sub, value, onInc, onDec }: {
 
 export function Navbar({ userEmail }: { userEmail?: string }) {
   const [activeNav, setActiveNav] = useState('All');
-  const [activeSection, setActiveSection] = useState<null | 'where' | 'when' | 'who'>(null);
+  const [activeSection, setActiveSection] = useState<'where' | 'checkin' | 'checkout' | 'who' | null>(null);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
   const sp = useSearchParams();
   const isSearchMode = !!(sp.get('where') || sp.get('checkin') || sp.get('guests'));
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Read back values for compact pill
-  const spWhere   = sp.get('where') ?? '';
-  const spGuests  = sp.get('guests');
+  const spWhere = sp.get('where') ?? '';
+  const spGuests = sp.get('guests');
   const spCheckin = sp.get('checkin');
-  const spCheckout= sp.get('checkout');
+  const spCheckout = sp.get('checkout');
 
   function fmtKey(key: string | null) {
     if (!key) return null;
-    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const [, m, d] = key.split('-').map(Number);
     return `${d} ${MONTHS[m]}`;
   }
@@ -147,10 +159,10 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
 
   // Calendar state
   const now = new Date();
-  const [calYear,  setCalYear]  = useState(now.getFullYear());
+  const [calYear, setCalYear] = useState(now.getFullYear());
   const [calMonth, setCalMonth] = useState(now.getMonth());
   const [dateStart, setDateStart] = useState<string | null>(null);
-  const [dateEnd,   setDateEnd]   = useState<string | null>(null);
+  const [dateEnd, setDateEnd] = useState<string | null>(null);
 
   function handleDayClick(key: string) {
     if (!dateStart || (dateStart && dateEnd)) {
@@ -172,7 +184,7 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
   function fmtDate(key: string | null) {
     if (!key) return null;
     const [y, m, d] = key.split('-').map(Number);
-    return `${MONTHS[m].slice(0,3)} ${d}`;
+    return `${MONTHS[m].slice(0, 3)} ${d}`;
   }
   const whenLabel = dateStart
     ? dateEnd
@@ -181,13 +193,13 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
     : 'Add dates';
 
   // Guest state
-  const [adults,   setAdults]   = useState(0);
+  const [adults, setAdults] = useState(0);
   const [children, setChildren] = useState(0);
-  const [infants,  setInfants]  = useState(0);
-  const [pets,     setPets]     = useState(0);
+  const [infants, setInfants] = useState(0);
+  const [pets, setPets] = useState(0);
   const totalGuests = adults + children;
 
-  const nextMonth = calMonth === 11 ? { y: calYear + 1, m: 0 }  : { y: calYear, m: calMonth + 1 };
+  const nextMonth = calMonth === 11 ? { y: calYear + 1, m: 0 } : { y: calYear, m: calMonth + 1 };
 
   const router = useRouter();
 
@@ -195,9 +207,9 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
     e.stopPropagation();
     const params = new URLSearchParams();
     if (whereValue.trim()) params.set('where', whereValue.trim());
-    if (dateStart)         params.set('checkin',  dateStart);
-    if (dateEnd)           params.set('checkout', dateEnd);
-    if (totalGuests > 0)   params.set('guests',   String(totalGuests));
+    if (dateStart) params.set('checkin', dateStart);
+    if (dateEnd) params.set('checkout', dateEnd);
+    if (totalGuests > 0) params.set('guests', String(totalGuests));
     close();
     router.push(`/?${params.toString()}`);
   }
@@ -243,7 +255,7 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
                       {spCheckin && spCheckout
                         ? `${fmtKey(spCheckin)} – ${fmtKey(spCheckout)}`
                         : spCheckin ? `From ${fmtKey(spCheckin)}`
-                        : 'Any week'}
+                          : 'Any week'}
                     </span>
                   </button>
 
@@ -281,12 +293,41 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
               <Globe className="h-[18px] w-[18px] text-gray-700" />
             </button>
             {userEmail ? (
-              <Link href="/trips" className="ml-1 flex items-center gap-2.5 border border-gray-200 rounded-full py-2 pl-3 pr-2 hover:shadow-md transition-shadow bg-white">
-                <Menu className="h-4 w-4 text-gray-700" />
-                <div className="h-8 w-8 rounded-full bg-[#FF385C] flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-semibold leading-none">{userEmail[0].toUpperCase()}</span>
-                </div>
-              </Link>
+              <div className="relative ml-1" ref={profileRef}>
+                <button
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  className="flex items-center gap-2.5 border border-gray-200 rounded-full py-2 pl-3 pr-2 hover:shadow-md transition-shadow bg-white"
+                >
+                  <Menu className="h-4 w-4 text-gray-700" />
+                  <div className="h-8 w-8 rounded-full bg-[#FF385C] flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm font-semibold leading-none">{userEmail[0].toUpperCase()}</span>
+                  </div>
+                </button>
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden py-2 z-50">
+                    <Link
+                      href="/trips"
+                      className="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      Trips
+                    </Link>
+                    <hr className="border-gray-100 my-1" />
+                    <form action={async () => {
+                      // Using a hidden form or a transition is better for server actions
+                      const { logout } = await import('@/app/login/actions')
+                      await logout()
+                    }}>
+                      <button
+                        type="submit"
+                        className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+                      >
+                        Log out
+                      </button>
+                    </form>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link href="/login" className="ml-1 flex items-center gap-2.5 border border-gray-200 rounded-full py-2 pl-3 pr-2 hover:shadow-md transition-shadow bg-white">
                 <Menu className="h-4 w-4 text-gray-700" />
@@ -304,56 +345,56 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
             <div className="max-w-[1280px] mx-auto px-6 py-4 flex justify-center">
               <div className="relative w-full max-w-[720px]">
 
-              <div className={`bg-white rounded-full border flex items-stretch h-[58px] overflow-visible
+                <div className={`bg-white rounded-full border flex items-stretch h-[58px] overflow-visible
                 transition-shadow duration-300
                 ${activeSection ? 'border-gray-300 shadow-2xl' : 'border-gray-200 shadow shadow-black/10'}`}>
 
-                {/* ── WHERE ── */}
-                <div
-                  onClick={() => { setActiveSection('where'); whereInputRef.current?.focus(); }}
-                  className={`flex-1 flex flex-col justify-center px-6 rounded-l-full cursor-text transition
-                    ${activeSection === 'where' ? 'bg-white ring-2 ring-gray-800 rounded-full z-10' : 'hover:bg-gray-50'}`}>
-                  <span className="text-[11px] font-bold text-gray-900 tracking-wide uppercase">Where</span>
-                  <input
-                    ref={whereInputRef}
-                    value={whereValue}
-                    onChange={e => setWhereValue(e.target.value)}
-                    onFocus={() => setActiveSection('where')}
-                    placeholder="Search destinations"
-                    className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400 mt-0.5"
-                  />
-                </div>
-
-                <div className="self-center w-px h-7 bg-gray-200 flex-shrink-0" />
-
-                {/* ── WHEN ── */}
-                <button
-                  onClick={() => setActiveSection(activeSection === 'when' ? null : 'when')}
-                  className={`flex-[0.7] flex flex-col justify-center px-6 transition text-left
-                    ${activeSection === 'when' ? 'bg-white ring-2 ring-gray-800 rounded-full z-10' : 'hover:bg-gray-50'}`}>
-                  <span className="text-[11px] font-bold text-gray-900 tracking-wide uppercase">When</span>
-                  <span className={`text-sm mt-0.5 ${dateStart ? 'text-gray-700' : 'text-gray-400'}`}>
-                    {whenLabel}
-                  </span>
-                </button>
-
-                <div className="self-center w-px h-7 bg-gray-200 flex-shrink-0" />
-
-                {/* ── WHO + SEARCH ── */}
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setActiveSection(activeSection === 'who' ? null : 'who')}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveSection(activeSection === 'who' ? null : 'who') } }}
-                  className={`flex-1 flex items-center justify-between pl-6 pr-2 rounded-r-full transition text-left
-                    ${activeSection === 'who' ? 'bg-white ring-2 ring-gray-800 rounded-full z-10' : 'hover:bg-gray-50'}`}>
-                  <div className="flex flex-col justify-center">
-                    <span className="text-[11px] font-bold text-gray-900 tracking-wide uppercase">Who</span>
-                    <span className={`text-sm mt-0.5 ${totalGuests > 0 ? 'text-gray-700' : 'text-gray-400'}`}>
-                      {totalGuests > 0 ? `${totalGuests} guest${totalGuests > 1 ? 's' : ''}` : 'Add guests'}
-                    </span>
-                  </div>
+                  {/* ── WHERE ── */}
                   <div
+                    onClick={() => { setActiveSection('where'); whereInputRef.current?.focus(); }}
+                    className={`flex-1 flex flex-col justify-center px-6 rounded-l-full cursor-text transition
+                    ${activeSection === 'where' ? 'bg-white ring-2 ring-gray-800 rounded-full z-10' : 'hover:bg-gray-50'}`}>
+                    <span className="text-[11px] font-bold text-gray-900 tracking-wide uppercase">Where</span>
+                    <input
+                      ref={whereInputRef}
+                      value={whereValue}
+                      onChange={e => setWhereValue(e.target.value)}
+                      onFocus={() => setActiveSection('where')}
+                      placeholder="Search destinations"
+                      className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400 mt-0.5"
+                    />
+                  </div>
+
+                  <div className="self-center w-px h-7 bg-gray-200 flex-shrink-0" />
+
+                  {/* ── WHEN ── */}
+                  <button
+                    onClick={() => setActiveSection(activeSection === 'when' ? null : 'when')}
+                    className={`flex-[0.7] flex flex-col justify-center px-6 transition text-left
+                    ${activeSection === 'when' ? 'bg-white ring-2 ring-gray-800 rounded-full z-10' : 'hover:bg-gray-50'}`}>
+                    <span className="text-[11px] font-bold text-gray-900 tracking-wide uppercase">When</span>
+                    <span className={`text-sm mt-0.5 ${dateStart ? 'text-gray-700' : 'text-gray-400'}`}>
+                      {whenLabel}
+                    </span>
+                  </button>
+
+                  <div className="self-center w-px h-7 bg-gray-200 flex-shrink-0" />
+
+                  {/* ── WHO + SEARCH ── */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setActiveSection(activeSection === 'who' ? null : 'who')}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveSection(activeSection === 'who' ? null : 'who') } }}
+                    className={`flex-1 flex items-center justify-between pl-6 pr-2 rounded-r-full transition text-left
+                    ${activeSection === 'who' ? 'bg-white ring-2 ring-gray-800 rounded-full z-10' : 'hover:bg-gray-50'}`}>
+                    <div className="flex flex-col justify-center">
+                      <span className="text-[11px] font-bold text-gray-900 tracking-wide uppercase">Who</span>
+                      <span className={`text-sm mt-0.5 ${totalGuests > 0 ? 'text-gray-700' : 'text-gray-400'}`}>
+                        {totalGuests > 0 ? `${totalGuests} guest${totalGuests > 1 ? 's' : ''}` : 'Add guests'}
+                      </span>
+                    </div>
+                    <div
                       role="button"
                       tabIndex={0}
                       onClick={handleSearch}
@@ -363,80 +404,80 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
                       <Search className="h-4 w-4" />
                       {activeSection && <span className="text-sm font-semibold pr-1">Search</span>}
                     </div>
-                </div>
-              </div>
-
-              {/* WHERE dropdown — destination suggestions */}
-              {activeSection === 'where' && (
-                <div className="animate-dropdown-in absolute top-[70px] left-0 w-full bg-white rounded-3xl shadow-2xl p-4 z-50">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-2 mb-2">Suggested destinations</p>
-                  {filtered.map((s) => (
-                    <button
-                      key={s.city}
-                      onClick={() => { setWhereValue(s.city); setActiveSection('when'); }}
-                      className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-100 transition text-left">
-                      <div className="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 text-lg">
-                        🏙️
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 text-sm">{s.city}</div>
-                        <div className="text-xs text-gray-500">{s.country}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* WHEN dropdown — calendar */}
-              {activeSection === 'when' && (
-                <div className="animate-dropdown-in absolute top-[70px] left-1/2 -translate-x-1/2 w-[700px] max-w-[95vw] bg-white rounded-3xl shadow-2xl p-6 z-50">
-                  <div className="flex justify-center mb-6">
-                    <div className="flex bg-gray-100 rounded-full p-1 gap-1">
-                      <button className="px-6 py-2 rounded-full bg-white text-sm font-semibold shadow-sm">Dates</button>
-                      <button className="px-6 py-2 rounded-full text-sm font-medium text-gray-600 hover:bg-white/50 transition">Flexible</button>
-                    </div>
                   </div>
-                  <div className="flex gap-8">
-                    <MonthCalendar
-                      year={calYear} month={calMonth}
-                      showPrev showNext={false}
-                      startKey={dateStart} endKey={dateEnd}
-                      onDayClick={(key) => handleDayClick(key)}
-                      onPrev={() => {
-                        if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); }
-                        else setCalMonth(m => m - 1);
-                      }}
-                    />
-                    <MonthCalendar
-                      year={nextMonth.y} month={nextMonth.m}
-                      showPrev={false} showNext
-                      startKey={dateStart} endKey={dateEnd}
-                      onDayClick={(key) => handleDayClick(key)}
-                      onNext={() => {
-                        if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0); }
-                        else setCalMonth(m => m + 1);
-                      }}
-                    />
-                  </div>
-                  <div className="flex gap-2 mt-6 flex-wrap">
-                    {['Exact dates', '± 1 day', '± 2 days', '± 3 days', '± 7 days', '± 14 days'].map((opt) => (
-                      <button key={opt} className="px-4 py-2 rounded-full border border-gray-300 text-sm hover:border-gray-700 transition">{opt}</button>
+                </div>
+
+                {/* WHERE dropdown — destination suggestions */}
+                {activeSection === 'where' && (
+                  <div className="animate-dropdown-in absolute top-[70px] left-0 w-full bg-white rounded-3xl shadow-2xl p-4 z-50">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-2 mb-2">Suggested destinations</p>
+                    {filtered.map((s) => (
+                      <button
+                        key={s.city}
+                        onClick={() => { setWhereValue(s.city); setActiveSection('when'); }}
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-100 transition text-left">
+                        <div className="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 text-lg">
+                          🏙️
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900 text-sm">{s.city}</div>
+                          <div className="text-xs text-gray-500">{s.country}</div>
+                        </div>
+                      </button>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* WHO dropdown — guest picker */}
-              {activeSection === 'who' && (
-                <div className="animate-dropdown-in-right absolute top-[70px] right-0 w-[400px] max-w-[95vw] bg-white rounded-3xl shadow-2xl p-6 z-50">
-                  <GuestCounter label="Adults"   sub="Ages 13 or above"            value={adults}   onInc={() => setAdults(v => v + 1)}   onDec={() => setAdults(v => Math.max(0, v - 1))} />
-                  <GuestCounter label="Children" sub="Ages 2–12"                   value={children} onInc={() => setChildren(v => v + 1)} onDec={() => setChildren(v => Math.max(0, v - 1))} />
-                  <GuestCounter label="Infants"  sub="Under 2"                     value={infants}  onInc={() => setInfants(v => v + 1)}  onDec={() => setInfants(v => Math.max(0, v - 1))} />
-                  <GuestCounter label="Pets"     sub="Bringing a service animal?"  value={pets}     onInc={() => setPets(v => v + 1)}     onDec={() => setPets(v => Math.max(0, v - 1))} />
-                </div>
-              )}{/* end WHO dropdown */}
+                {/* WHEN dropdown — calendar */}
+                {activeSection === 'when' && (
+                  <div className="animate-dropdown-in absolute top-[70px] left-1/2 -translate-x-1/2 w-[700px] max-w-[95vw] bg-white rounded-3xl shadow-2xl p-6 z-50">
+                    <div className="flex justify-center mb-6">
+                      <div className="flex bg-gray-100 rounded-full p-1 gap-1">
+                        <button className="px-6 py-2 rounded-full bg-white text-sm font-semibold shadow-sm">Dates</button>
+                        <button className="px-6 py-2 rounded-full text-sm font-medium text-gray-600 hover:bg-white/50 transition">Flexible</button>
+                      </div>
+                    </div>
+                    <div className="flex gap-8">
+                      <MonthCalendar
+                        year={calYear} month={calMonth}
+                        showPrev showNext={false}
+                        startKey={dateStart} endKey={dateEnd}
+                        onDayClick={(key) => handleDayClick(key)}
+                        onPrev={() => {
+                          if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); }
+                          else setCalMonth(m => m - 1);
+                        }}
+                      />
+                      <MonthCalendar
+                        year={nextMonth.y} month={nextMonth.m}
+                        showPrev={false} showNext
+                        startKey={dateStart} endKey={dateEnd}
+                        onDayClick={(key) => handleDayClick(key)}
+                        onNext={() => {
+                          if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0); }
+                          else setCalMonth(m => m + 1);
+                        }}
+                      />
+                    </div>
+                    <div className="flex gap-2 mt-6 flex-wrap">
+                      {['Exact dates', '± 1 day', '± 2 days', '± 3 days', '± 7 days', '± 14 days'].map((opt) => (
+                        <button key={opt} className="px-4 py-2 rounded-full border border-gray-300 text-sm hover:border-gray-700 transition">{opt}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            </div>
+                {/* WHO dropdown — guest picker */}
+                {activeSection === 'who' && (
+                  <div className="animate-dropdown-in-right absolute top-[70px] right-0 w-[400px] max-w-[95vw] bg-white rounded-3xl shadow-2xl p-6 z-50">
+                    <GuestCounter label="Adults" sub="Ages 13 or above" value={adults} onInc={() => setAdults(v => v + 1)} onDec={() => setAdults(v => Math.max(0, v - 1))} />
+                    <GuestCounter label="Children" sub="Ages 2–12" value={children} onInc={() => setChildren(v => v + 1)} onDec={() => setChildren(v => Math.max(0, v - 1))} />
+                    <GuestCounter label="Infants" sub="Under 2" value={infants} onInc={() => setInfants(v => v + 1)} onDec={() => setInfants(v => Math.max(0, v - 1))} />
+                    <GuestCounter label="Pets" sub="Bringing a service animal?" value={pets} onInc={() => setPets(v => v + 1)} onDec={() => setPets(v => Math.max(0, v - 1))} />
+                  </div>
+                )}{/* end WHO dropdown */}
+
+              </div>
             </div>
           </div>
         )}

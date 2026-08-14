@@ -4,13 +4,15 @@ import { ChevronDown, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createBooking } from '@/app/rooms/[id]/actions';
 
 interface BookingSidebarProps {
-  pricePerNight: number;
+  pricePerNight?: number;
   listingId: number;
+  token?: string;
 }
 
-export function BookingSidebar({ pricePerNight, listingId }: BookingSidebarProps) {
+export function BookingSidebar({ pricePerNight = 12000, listingId, token }: BookingSidebarProps) {
   const [checkin, setCheckin] = useState('2026-08-21')
   const [checkout, setCheckout] = useState('2026-08-23')
   const [guests, setGuests] = useState(1)
@@ -84,35 +86,16 @@ export function BookingSidebar({ pricePerNight, listingId }: BookingSidebarProps
           try {
             const nights = Math.max(1, Math.round((new Date(checkout).getTime() - new Date(checkin).getTime()) / (1000*60*60*24)))
             const total = pricePerNight * nights
-            const bookingRes = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/bookings/` : 'http://localhost:8000/bookings/', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({ listing_id: listingId, start_date: checkin, end_date: checkout, total_price: total })
-            })
-            if (!bookingRes.ok) {
-              const err = await bookingRes.json().catch(() => ({}))
-              alert(err.detail || 'Booking failed')
+            const res = await createBooking(listingId, checkin, checkout, total)
+            if (!res.success) {
+              alert(res.error || 'Booking failed')
               setLoading(false)
               return
             }
-            // mock charge
-            const payRes = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/payments/mock-charge` : 'http://localhost:8000/payments/mock-charge', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({ amount: total })
-            })
-            if (!payRes.ok) {
-              alert('Payment failed')
-              setLoading(false)
-              return
-            }
-            const payJson = await payRes.json()
-            alert(`Booking succeeded: ${payJson.transaction_id}`)
-            router.push('/')
+            alert(`Booking succeeded: ${res.transaction_id}`)
+            router.push('/trips')
           } catch (e) {
-            alert('Error creating booking')
+            alert('Error creating booking: ' + (e instanceof Error ? e.message : String(e)))
           } finally {
             setLoading(false)
           }

@@ -12,8 +12,12 @@ import { RoomCalendar } from "@/components/room/room-calendar";
 import { Fan, KeyRound, Home, MapPin, CircleParking, Medal } from "lucide-react";
 import { Utensils, Wifi, Car, Tv, WashingMachine, Snowflake, Ban } from "lucide-react";
 
+import { cookies } from 'next/headers';
+
 export default async function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('access_token')?.value;
   const listingRes = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/listings/${id}` : `http://localhost:8000/listings/${id}`, { cache: 'no-store' })
   if (!listingRes.ok) return (<div>Listing not found</div>)
   const listing = await listingRes.json()
@@ -167,7 +171,7 @@ Do expect power cuts due to increasing temperatures💡. (Battery backup Inverte
           {/* Sticky Sidebar Column */}
           <div className="relative">
             <div className="sticky top-24 pt-8">
-              <BookingSidebar pricePerNight={listing.price} listingId={Number(params.id)} />
+              <BookingSidebar pricePerNight={listing.price} listingId={Number(id)} token={token} />
               {currentUser && currentUser.id === listing.host_id && (
                 <div className="mt-4">
                   <a href={`/rooms/${id}/edit`} className="block bg-gray-200 px-3 py-2 rounded mb-2">Edit listing</a>

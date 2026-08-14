@@ -70,3 +70,10 @@ export async function signup(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/private')
 }
+
+export async function logout() {
+  const cookieStore = await cookies();
+  cookieStore.delete('access_token');
+  revalidatePath('/', 'layout');
+  redirect('/');
+}
