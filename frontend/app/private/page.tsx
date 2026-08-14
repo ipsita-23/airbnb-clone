@@ -24,13 +24,6 @@ export default async function PrivatePage() {
     redirect('/login')
   }
 
-  async function signOut() {
-    'use server'
-    const supabase = await createClient()
-    await supabase.auth.signOut()
-    revalidatePath('/', 'layout')
-    redirect('/')
-  }
 
   const BACKEND = process.env.BACKEND_URL || 'http://localhost:8000';
   let ALL_PROPERTIES: any[] = [];

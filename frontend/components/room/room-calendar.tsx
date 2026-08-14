@@ -48,6 +48,7 @@ export function RoomCalendar() {
           className="border-none w-fit"
           classNames={{
             months: "flex flex-col sm:flex-row space-y-4 sm:space-x-12 sm:space-y-0",
+            // @ts-ignore
             head_cell: "text-neutral-500 font-normal text-[0.8rem] w-12",
             cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-neutral-100 first:[&:has([aria-selected])]:rounded-l-full last:[&:has([aria-selected])]:rounded-r-full focus-within:relative focus-within:z-20",
             day: "h-12 w-12 p-0 font-semibold aria-selected:opacity-100 hover:border hover:border-black hover:rounded-full rounded-full transition-all flex items-center justify-center",

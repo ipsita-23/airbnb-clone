@@ -121,7 +121,7 @@ function GuestCounter({ label, sub, value, onInc, onDec }: {
 
 export function Navbar({ userEmail }: { userEmail?: string }) {
   const [activeNav, setActiveNav] = useState('All');
-  const [activeSection, setActiveSection] = useState<'where' | 'checkin' | 'checkout' | 'who' | null>(null);
+  const [activeSection, setActiveSection] = useState<'where' | 'when' | 'who' | null>(null);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const sp = useSearchParams();

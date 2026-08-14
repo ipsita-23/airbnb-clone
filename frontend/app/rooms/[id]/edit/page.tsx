@@ -10,8 +10,8 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   if (!res.ok) redirect('/')
   const listing = await res.json()
 
-  'use server'
   async function save(formData: FormData) {
+    'use server'
     const city = formData.get('city') as string;
     const country = formData.get('country') as string;
     let latitude: number | undefined;
@@ -51,14 +51,14 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
       })
       if (uploadRes.ok) {
         const up = await uploadRes.json().catch(() => null)
-        if (up && up.url) data.image = up.url
+        if (up && up.url) updates.image = up.url
       }
     }
 
     await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/listings/${id}` : `http://localhost:8000/listings/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify(data),
+      body: JSON.stringify(updates),
     })
     redirect(`/rooms/${id}`)
   }

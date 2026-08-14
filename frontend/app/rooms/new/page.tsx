@@ -2,9 +2,8 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export default async function NewListingPage() {
-  'use server'
-
   async function createListing(formData: FormData) {
+    'use server'
     const city = formData.get('city') as string;
     const country = formData.get('country') as string;
     let latitude: number | undefined;
