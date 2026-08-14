@@ -5,14 +5,34 @@ export default async function NewListingPage() {
   'use server'
 
   async function createListing(formData: FormData) {
-    const data = {
+    const city = formData.get('city') as string;
+    const country = formData.get('country') as string;
+    let latitude: number | undefined;
+    let longitude: number | undefined;
+
+    if (city && country) {
+      try {
+        const nomRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city + ', ' + country)}&format=json&limit=1`, {
+          headers: { 'User-Agent': 'AirbnbClone/1.0' }
+        })
+        const nomData = await nomRes.json()
+        if (nomData && nomData.length > 0) {
+          latitude = parseFloat(nomData[0].lat)
+          longitude = parseFloat(nomData[0].lon)
+        }
+      } catch (e) {}
+    }
+
+    const data: any = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
       price: Number(formData.get('price')) || 0,
       address: formData.get('address') as string,
-      city: formData.get('city') as string,
-      country: formData.get('country') as string,
+      city,
+      country,
     }
+    if (latitude !== undefined) data.latitude = latitude;
+    if (longitude !== undefined) data.longitude = longitude;
 
     const cookieStore = await cookies();
     const token = cookieStore.get('access_token')?.value

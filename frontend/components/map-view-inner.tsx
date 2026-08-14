@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -17,20 +18,35 @@ L.Icon.Default.mergeOptions({
 // A component to automatically adjust the map bounds based on markers
 function MapBounds({ properties }: { properties: any[] }) {
   const map = useMap();
+  const sp = useSearchParams();
+  const whereQuery = sp.get('where');
 
   useEffect(() => {
-    if (properties.length > 0) {
-      const bounds = L.latLngBounds(properties.map((p) => [p.lat, p.lng]));
+    const validProps = properties.filter(p => p.latitude != null && p.longitude != null);
+    if (validProps.length > 0) {
+      const bounds = L.latLngBounds(validProps.map((p) => [p.latitude, p.longitude]));
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+    } else if (whereQuery) {
+      // Geocode whereQuery and fly to it
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(whereQuery)}&format=json&limit=1`, {
+        headers: { 'User-Agent': 'AirbnbClone/1.0' }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.length > 0) {
+            map.flyTo([parseFloat(data[0].lat), parseFloat(data[0].lon)], 12, { animate: true });
+          }
+        }).catch(() => {});
     }
-  }, [properties, map]);
+  }, [properties, map, whereQuery]);
 
   return null;
 }
 
 export default function MapInner({ properties }: { properties: any[] }) {
+  const validProps = properties.filter(p => p.latitude != null && p.longitude != null);
   // Center defaults to Chandigarh if no properties
-  const center: [number, number] = properties.length > 0 ? [properties[0].lat, properties[0].lng] : [30.7333, 76.7794];
+  const center: [number, number] = validProps.length > 0 ? [validProps[0].latitude, validProps[0].longitude] : [30.7333, 76.7794];
 
   // We need to create a custom DivIcon for each property price tag
   const createCustomIcon = (price: string) => {
@@ -58,11 +74,11 @@ export default function MapInner({ properties }: { properties: any[] }) {
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
         
-        {properties.map((property) => (
+        {validProps.map((property) => (
           <Marker
             key={property.id}
-            position={[property.lat, property.lng]}
-            icon={createCustomIcon(property.price)}
+            position={[property.latitude, property.longitude]}
+            icon={createCustomIcon(String(property.price))}
           />
         ))}
         

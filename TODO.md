@@ -1,0 +1,2 @@
+-[ ]  Map intergation show location in map
+-[ ] create db schema for cords
