@@ -1,10 +1,11 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-export default async function EditListingPage({ params }: { params: { id: string } }) {
-  const id = params.id
+export default async function EditListingPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
-  const token = cookies().get('access_token')?.value
+  const cookieStore = await cookies();
+  const token = cookieStore.get('access_token')?.value
   const res = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/listings/${id}` : `http://localhost:8000/listings/${id}`, { cache: 'no-store' })
   if (!res.ok) redirect('/')
   const listing = await res.json()

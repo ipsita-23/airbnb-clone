@@ -87,6 +87,10 @@ def bookings_for_listing(db: Session, listing_id: int):
     return db.query(models.Booking).filter(models.Booking.listing_id == listing_id).all()
 
 
+def bookings_for_user(db: Session, user_id: int):
+    return db.query(models.Booking).filter(models.Booking.guest_id == user_id).all()
+
+
 def create_review(db: Session, review_data: dict):
     review = models.Review(**review_data)
     db.add(review)

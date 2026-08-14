@@ -18,3 +18,8 @@ def create_booking(booking_in: schemas.BookingCreate, db: Session = Depends(get_
     booking_data["guest_id"] = current_user.id
     booking = crud.create_booking(db, booking_data)
     return booking
+
+
+@router.get("/me", response_model=list[schemas.BookingWithListingRead])
+def get_my_bookings(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    return crud.bookings_for_user(db, current_user.id)

@@ -6,7 +6,7 @@ import { PropertySection } from "@/components/property-section";
 import { FloatingPriceToggle } from "@/components/floating-price-toggle";
 
 export default async function PrivatePage() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('access_token')?.value
   let userEmail = undefined
   if (!token) {

@@ -65,6 +65,13 @@ class BookingRead(BaseModel):
         orm_mode = True
 
 
+class BookingWithListingRead(BookingRead):
+    listing: Optional[ListingRead] = None
+
+    class Config:
+        orm_mode = True
+
+
 class ReviewCreate(BaseModel):
     listing_id: int
     rating: int

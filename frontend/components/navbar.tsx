@@ -280,15 +280,21 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
             <button className="hidden md:flex items-center justify-center h-10 w-10 rounded-full border border-gray-200 hover:bg-gray-100 transition">
               <Globe className="h-[18px] w-[18px] text-gray-700" />
             </button>
-            <button className="ml-1 flex items-center gap-2.5 border border-gray-200 rounded-full py-2 pl-3 pr-2 hover:shadow-md transition-shadow bg-white">
-              <Menu className="h-4 w-4 text-gray-700" />
-              <div className="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
-                {userEmail
-                  ? <span className="text-white text-sm font-semibold leading-none">{userEmail[0].toUpperCase()}</span>
-                  : <svg viewBox="0 0 32 32" className="h-5 w-5 fill-white"><path d="M16 16c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zm0 2c-4.004 0-12 2.01-12 6v2h24v-2c0-3.99-7.996-6-12-6z" /></svg>
-                }
-              </div>
-            </button>
+            {userEmail ? (
+              <Link href="/trips" className="ml-1 flex items-center gap-2.5 border border-gray-200 rounded-full py-2 pl-3 pr-2 hover:shadow-md transition-shadow bg-white">
+                <Menu className="h-4 w-4 text-gray-700" />
+                <div className="h-8 w-8 rounded-full bg-[#FF385C] flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-sm font-semibold leading-none">{userEmail[0].toUpperCase()}</span>
+                </div>
+              </Link>
+            ) : (
+              <Link href="/login" className="ml-1 flex items-center gap-2.5 border border-gray-200 rounded-full py-2 pl-3 pr-2 hover:shadow-md transition-shadow bg-white">
+                <Menu className="h-4 w-4 text-gray-700" />
+                <div className="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
+                  <svg viewBox="0 0 32 32" className="h-5 w-5 fill-white"><path d="M16 16c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zm0 2c-4.004 0-12 2.01-12 6v2h24v-2c0-3.99-7.996-6-12-6z" /></svg>
+                </div>
+              </Link>
+            )}
           </div>
         </div>
 

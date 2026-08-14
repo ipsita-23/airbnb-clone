@@ -12,8 +12,8 @@ import { RoomCalendar } from "@/components/room/room-calendar";
 import { Fan, KeyRound, Home, MapPin, CircleParking, Medal } from "lucide-react";
 import { Utensils, Wifi, Car, Tv, WashingMachine, Snowflake, Ban } from "lucide-react";
 
-export default async function RoomPage({ params }: { params: { id: string } }) {
-  const id = params.id
+export default async function RoomPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const listingRes = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/listings/${id}` : `http://localhost:8000/listings/${id}`, { cache: 'no-store' })
   if (!listingRes.ok) return (<div>Listing not found</div>)
   const listing = await listingRes.json()

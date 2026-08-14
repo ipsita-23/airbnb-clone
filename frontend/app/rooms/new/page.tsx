@@ -14,7 +14,8 @@ export default async function NewListingPage() {
       country: formData.get('country') as string,
     }
 
-    const token = cookies().get('access_token')?.value
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access_token')?.value
 
     // handle image upload if present
     const imageFile = formData.get('image') as File | null
