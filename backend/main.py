@@ -50,5 +50,9 @@ app.include_router(reviews.router)
 app.include_router(payments.router)
 app.include_router(upload.router)
 
+import os
+# ensure uploads directory exists
+os.makedirs("uploads", exist_ok=True)
+
 # serve uploaded images
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
