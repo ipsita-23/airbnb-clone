@@ -4,6 +4,9 @@ from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base, get_db
+from routers import auth, listings, bookings, reviews, payments
+from routers import upload
+from fastapi.staticfiles import StaticFiles
 
 # Create the database tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -37,3 +40,15 @@ def health_check(db: Session = Depends(get_db)):
         return {"status": "ok", "database": "connected"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database connection failed: {str(e)}")
+
+
+# include routers
+app.include_router(auth.router)
+app.include_router(listings.router)
+app.include_router(bookings.router)
+app.include_router(reviews.router)
+app.include_router(payments.router)
+app.include_router(upload.router)
+
+# serve uploaded images
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")

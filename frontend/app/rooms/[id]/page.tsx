@@ -12,8 +12,21 @@ import { RoomCalendar } from "@/components/room/room-calendar";
 import { Fan, KeyRound, Home, MapPin, CircleParking, Medal } from "lucide-react";
 import { Utensils, Wifi, Car, Tv, WashingMachine, Snowflake, Ban } from "lucide-react";
 
-export default function RoomPage() {
-  // Mock Data
+export default async function RoomPage({ params }: { params: { id: string } }) {
+  const id = params.id
+  const listingRes = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/listings/${id}` : `http://localhost:8000/listings/${id}`, { cache: 'no-store' })
+  if (!listingRes.ok) return (<div>Listing not found</div>)
+  const listing = await listingRes.json()
+
+  // determine current user to show host controls
+  let currentUser = null
+  try {
+    const token = null // server-side we rely on cookies in /private flow; try /auth/me
+    const meRes = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/auth/me` : 'http://localhost:8000/auth/me', { cache: 'no-store' })
+    if (meRes.ok) currentUser = await meRes.json()
+  } catch {}
+
+  // Mock Data fallback
   const mockFeatures = [
     {
       icon: MapPin,
@@ -113,7 +126,7 @@ Do expect power cuts due to increasing temperatures💡. (Battery backup Inverte
 
   return (
     <>
-      <Navbar />
+      <Navbar userEmail={currentUser?.email} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-20 pb-12">
         <RoomHeader title="Sleek and Modern Stay" />
         <ImageGallery images={["/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg"]} />
@@ -154,7 +167,23 @@ Do expect power cuts due to increasing temperatures💡. (Battery backup Inverte
           {/* Sticky Sidebar Column */}
           <div className="relative">
             <div className="sticky top-24 pt-8">
-              <BookingSidebar pricePerNight={8330} />
+              <BookingSidebar pricePerNight={listing.price} listingId={Number(params.id)} />
+              {currentUser && currentUser.id === listing.host_id && (
+                <div className="mt-4">
+                  <a href={`/rooms/${id}/edit`} className="block bg-gray-200 px-3 py-2 rounded mb-2">Edit listing</a>
+                  <form action={async () => {
+                    'use server'
+                    const token = null
+                    await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/listings/${id}` : `http://localhost:8000/listings/${id}`, {
+                      method: 'DELETE',
+                    })
+                    // redirect (client will navigate)
+                    window.location.href = '/'
+                  }}>
+                    <button type="button" onClick={async () => { if (confirm('Delete listing?')) { const res = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/listings/${id}` : `http://localhost:8000/listings/${id}`, { method: 'DELETE', credentials: 'include' }); if (res.ok) window.location.href = '/'; else alert('Delete failed') } }} className="w-full bg-red-600 text-white px-3 py-2 rounded">Delete listing</button>
+                  </form>
+                </div>
+              )}
             </div>
           </div>
         </div>

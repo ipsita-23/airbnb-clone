@@ -276,7 +276,7 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
           </div>
 
           <div className="flex items-center gap-1">
-            <button className="hidden md:block text-sm font-semibold text-gray-900 px-4 py-2.5 rounded-full hover:bg-gray-100 transition whitespace-nowrap">Become a host</button>
+            <Link href="/rooms/new" className="hidden md:block text-sm font-semibold text-gray-900 px-4 py-2.5 rounded-full hover:bg-gray-100 transition whitespace-nowrap">Become a host</Link>
             <button className="hidden md:flex items-center justify-center h-10 w-10 rounded-full border border-gray-200 hover:bg-gray-100 transition">
               <Globe className="h-[18px] w-[18px] text-gray-700" />
             </button>
@@ -334,8 +334,11 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
                 <div className="self-center w-px h-7 bg-gray-200 flex-shrink-0" />
 
                 {/* ── WHO + SEARCH ── */}
-                <button
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setActiveSection(activeSection === 'who' ? null : 'who')}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveSection(activeSection === 'who' ? null : 'who') } }}
                   className={`flex-1 flex items-center justify-between pl-6 pr-2 rounded-r-full transition text-left
                     ${activeSection === 'who' ? 'bg-white ring-2 ring-gray-800 rounded-full z-10' : 'hover:bg-gray-50'}`}>
                   <div className="flex flex-col justify-center">
@@ -344,14 +347,17 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
                       {totalGuests > 0 ? `${totalGuests} guest${totalGuests > 1 ? 's' : ''}` : 'Add guests'}
                     </span>
                   </div>
-                  <button
+                  <div
+                      role="button"
+                      tabIndex={0}
                       onClick={handleSearch}
-                      className="bg-[#FF385C] hover:bg-[#e0324f] active:scale-95 text-white h-[40px] px-4 rounded-full flex items-center gap-2 flex-shrink-0 transition-all shadow-sm ml-2"
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSearch(e as any) } }}
+                      className="bg-[#FF385C] hover:bg-[#e0324f] active:scale-95 text-white h-[40px] px-4 rounded-full flex items-center gap-2 flex-shrink-0 transition-all shadow-sm ml-2 cursor-pointer"
                     >
                       <Search className="h-4 w-4" />
                       {activeSection && <span className="text-sm font-semibold pr-1">Search</span>}
-                    </button>
-                </button>
+                    </div>
+                </div>
               </div>
 
               {/* WHERE dropdown — destination suggestions */}

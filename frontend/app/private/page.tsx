@@ -1,15 +1,26 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
 import { Navbar } from "@/components/navbar";
 import { PropertySection } from "@/components/property-section";
 import { FloatingPriceToggle } from "@/components/floating-price-toggle";
 
 export default async function PrivatePage() {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data?.user) {
+  const cookieStore = cookies()
+  const token = cookieStore.get('access_token')?.value
+  let userEmail = undefined
+  if (!token) {
+    redirect('/login')
+  }
+  try {
+    const res = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/auth/me` : 'http://localhost:8000/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    })
+    if (!res.ok) redirect('/login')
+    const json = await res.json()
+    userEmail = json.email
+  } catch (e) {
     redirect('/login')
   }
 
@@ -50,7 +61,7 @@ export default async function PrivatePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar userEmail={data.user.email} />
+      <Navbar userEmail={userEmail} />
       <main className="pb-36 pt-6">
         <PropertySection title="Popular homes in Chandigarh"        properties={chandigarhHomes} />
         <PropertySection title="Available in Kasauli this weekend"  properties={kasauliHomes} />
