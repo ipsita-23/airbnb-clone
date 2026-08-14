@@ -1,12 +1,29 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from fastapi.middleware.cors import CORSMiddleware
+
 from database import engine, Base, get_db
 
 # Create the database tables if they don't exist
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Airbnb Clone API")
+# 1. Define the allowed origins
+origins = [
+    "http://localhost:3000",      # React local development
+    "http://localhost:5173",      # Vite local development
+    "https://yourfrontend.com",   # Production frontend domain
+]
+
+# 2. Add the CORS middleware to your app instance
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,            # Allows requests from these origins
+    allow_credentials=True,           # Allows cookies and auth headers
+    allow_methods=["*"],              # Allows all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],              # Allows all HTTP headers
+)
 
 @app.get("/")
 def read_root():
