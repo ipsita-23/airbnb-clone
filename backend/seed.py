@@ -12,18 +12,53 @@ def seed():
         if not user:
             user = crud.create_user(db, "demo@airbnb.local", "demopass", name="Demo Host")
 
-        # create sample listing
+        # create sample listings
         listings = crud.list_listings(db)
         if not listings:
-            crud.create_listing(db, {
-                "title": "Cozy Studio in City Center",
-                "description": "A comfortable studio near downtown.",
-                "price": 75.0,
-                "address": "123 Main St",
-                "city": "Sampleville",
-                "country": "Countryland",
-                "host_id": user.id,
-            })
+            sample_listings = [
+                {
+                    "title": "Cozy Studio in City Center",
+                    "description": "A comfortable studio near downtown.",
+                    "price": 2500.0,
+                    "address": "123 Main St",
+                    "city": "Chandigarh",
+                    "country": "India",
+                    "image": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80",
+                    "host_id": user.id,
+                },
+                {
+                    "title": "Mountain View Villa",
+                    "description": "A beautiful villa with scenic views.",
+                    "price": 5000.0,
+                    "address": "456 Hill Rd",
+                    "city": "Kasauli",
+                    "country": "India",
+                    "image": "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80",
+                    "host_id": user.id,
+                },
+                {
+                    "title": "Modern Apartment",
+                    "description": "A modern apartment with all amenities.",
+                    "price": 3000.0,
+                    "address": "789 Highway Blvd",
+                    "city": "Zirakpur",
+                    "country": "India",
+                    "image": "https://images.unsplash.com/photo-1502672260266-1c1e52d15461?w=800&q=80",
+                    "host_id": user.id,
+                },
+                {
+                    "title": "Luxury Penthouse",
+                    "description": "Spacious penthouse overlooking the city skyline.",
+                    "price": 8000.0,
+                    "address": "101 Skyline Ave",
+                    "city": "Chandigarh",
+                    "country": "India",
+                    "image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+                    "host_id": user.id,
+                }
+            ]
+            for listing in sample_listings:
+                crud.create_listing(db, listing)
     finally:
         db.close()
 

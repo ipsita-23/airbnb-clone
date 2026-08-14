@@ -1,8 +1,10 @@
 import Image from "next/image";
 import { Heart, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 interface PropertyCardProps {
+  id?: number | string;
   image: string;
   location: string;
   title: string;
@@ -11,8 +13,8 @@ interface PropertyCardProps {
   isGuestFavorite?: boolean;
 }
 
-export function PropertyCard({ image, location, title, price, rating, isGuestFavorite = true }: PropertyCardProps) {
-  return (
+export function PropertyCard({ id, image, location, title, price, rating, isGuestFavorite = true }: PropertyCardProps) {
+  const content = (
     <div className="group cursor-pointer flex flex-col gap-3">
       {/* Image Container */}
       <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-gray-200">
@@ -53,4 +55,14 @@ export function PropertyCard({ image, location, title, price, rating, isGuestFav
       </div>
     </div>
   );
+
+  if (id) {
+    return (
+      <Link href={`/rooms/${id}`} className="block">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }

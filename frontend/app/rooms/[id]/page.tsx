@@ -128,14 +128,14 @@ Do expect power cuts due to increasing temperatures💡. (Battery backup Inverte
     <>
       <Navbar userEmail={currentUser?.email} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-20 pb-12">
-        <RoomHeader title="Sleek and Modern Stay" />
-        <ImageGallery images={["/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg"]} />
+        <RoomHeader title={listing.title} />
+        <ImageGallery images={listing.image ? [listing.image, listing.image, listing.image, listing.image, listing.image] : ["/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg"]} />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-4 relative">
           {/* Main Content Column */}
           <div className="lg:col-span-2">
             <MainInfo 
-              location="Entire home in Chandigarh, India"
+              location={`Entire home in ${listing.city || 'Unknown'}, ${listing.country || 'Unknown'}`}
               guests={4}
               bedrooms={2}
               beds={4}

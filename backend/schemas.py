@@ -26,6 +26,7 @@ class ListingCreate(BaseModel):
     country: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    image: Optional[str] = None
 
 
 class ListingRead(BaseModel):
@@ -38,6 +39,7 @@ class ListingRead(BaseModel):
     country: Optional[str]
     latitude: Optional[float]
     longitude: Optional[float]
+    image: Optional[str]
     host_id: int
 
     class Config:
