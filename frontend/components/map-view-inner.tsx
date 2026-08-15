@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -79,7 +79,15 @@ export default function MapInner({ properties }: { properties: any[] }) {
             key={property.id}
             position={[property.latitude, property.longitude]}
             icon={createCustomIcon(String(property.price))}
-          />
+          >
+            <Popup>
+              <div className="w-48">
+                <h3 className="font-semibold text-gray-900">{property.title}</h3>
+                <p className="text-sm text-gray-600">{property.location}</p>
+                <p className="text-sm font-bold text-rose-600 mt-2">{property.price}</p>
+              </div>
+            </Popup>
+          </Marker>
         ))}
         
         <MapBounds properties={properties} />

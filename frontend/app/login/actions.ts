@@ -15,6 +15,7 @@ export async function login(formData: FormData) {
   const res = await fetch(`${BACKEND}/auth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data),
   })
 
@@ -33,7 +34,7 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/private')
+  redirect('/')
 }
 
 export async function signup(formData: FormData) {
@@ -45,6 +46,7 @@ export async function signup(formData: FormData) {
   const res = await fetch(`${BACKEND}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data),
   })
 
@@ -57,6 +59,7 @@ export async function signup(formData: FormData) {
   const tokenRes = await fetch(`${BACKEND}/auth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data),
   })
   if (tokenRes.ok) {
@@ -68,7 +71,7 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/private')
+  redirect('/')
 }
 
 export async function logout() {

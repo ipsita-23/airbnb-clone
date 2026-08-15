@@ -8,9 +8,9 @@ def seed():
     db = SessionLocal()
     try:
         # create a demo user if not exists
-        user = crud.get_user_by_email(db, "demo@airbnb.local")
+        user = crud.get_user_by_email(db, "demo@example.com")
         if not user:
-            user = crud.create_user(db, "demo@airbnb.local", "demopass", name="Demo Host")
+            user = crud.create_user(db, "demo@example.com", "demopass", name="Demo Host")
 
         # create sample listings
         listings = crud.list_listings(db)
@@ -23,6 +23,8 @@ def seed():
                     "address": "123 Main St",
                     "city": "Chandigarh",
                     "country": "India",
+                    "latitude": 30.7333,
+                    "longitude": 76.7794,
                     "image": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80",
                     "host_id": user.id,
                 },
@@ -33,6 +35,8 @@ def seed():
                     "address": "456 Hill Rd",
                     "city": "Kasauli",
                     "country": "India",
+                    "latitude": 31.0082,
+                    "longitude": 76.9610,
                     "image": "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80",
                     "host_id": user.id,
                 },
@@ -43,6 +47,8 @@ def seed():
                     "address": "789 Highway Blvd",
                     "city": "Zirakpur",
                     "country": "India",
+                    "latitude": 30.6422,
+                    "longitude": 76.8152,
                     "image": "https://images.unsplash.com/photo-1502672260266-1c1e52d15461?w=800&q=80",
                     "host_id": user.id,
                 },
@@ -53,6 +59,8 @@ def seed():
                     "address": "101 Skyline Ave",
                     "city": "Chandigarh",
                     "country": "India",
+                    "latitude": 30.7400,
+                    "longitude": 76.7900,
                     "image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
                     "host_id": user.id,
                 }

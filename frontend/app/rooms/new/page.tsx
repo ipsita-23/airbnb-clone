@@ -29,27 +29,13 @@ export default async function NewListingPage() {
       address: formData.get('address') as string,
       city,
       country,
+      image: formData.get('image_url') as string || undefined,
     }
     if (latitude !== undefined) data.latitude = latitude;
     if (longitude !== undefined) data.longitude = longitude;
 
     const cookieStore = await cookies();
     const token = cookieStore.get('access_token')?.value
-
-    // handle image upload if present
-    const imageFile = formData.get('image') as File | null
-    if (imageFile && imageFile.size > 0) {
-      const uploadForm = new FormData()
-      uploadForm.append('file', imageFile, (imageFile as any).name || 'upload.jpg')
-      const uploadRes = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/upload/image` : 'http://localhost:8000/upload/image', {
-        method: 'POST',
-        body: uploadForm,
-      })
-      if (uploadRes.ok) {
-        const up = await uploadRes.json().catch(() => null)
-        if (up && up.url) data.image = up.url
-      }
-    }
 
     const res = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/listings/` : 'http://localhost:8000/listings/', {
       method: 'POST',
@@ -80,7 +66,7 @@ export default async function NewListingPage() {
         <input name="address" placeholder="Address" className="p-3 border rounded" />
         <input name="city" placeholder="City" className="p-3 border rounded" />
         <input name="country" placeholder="Country" className="p-3 border rounded" />
-        <input name="image" type="file" accept="image/*" className="p-3" />
+        <input name="image_url" placeholder="Image URL (optional)" type="url" className="p-3 border rounded" />
         <div className="pt-4">
           <button type="submit" className="bg-gray-900 text-white px-4 py-2 rounded">Create listing</button>
         </div>

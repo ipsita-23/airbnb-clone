@@ -205,7 +205,11 @@ Do expect power cuts due to increasing temperatures💡. (Battery backup Inverte
         />
         
         {/* Full width map section */}
-        <MapSection location="Chandigarh, India" />
+        <MapSection 
+          location={`${listing.city || 'Unknown'}, ${listing.country || 'Unknown'}`}
+          latitude={listing.latitude}
+          longitude={listing.longitude}
+        />
       </main>
     </>
   );

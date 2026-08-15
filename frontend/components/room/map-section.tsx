@@ -1,36 +1,35 @@
+'use client';
+
+import dynamic from 'next/dynamic';
 import { ChevronRight } from "lucide-react";
+
+// Dynamically import the map component, disabling SSR because leaflet uses window
+const MapInner = dynamic(() => import('./map-section-inner'), {
+  ssr: false,
+  loading: () => <div className="w-full h-[480px] bg-gray-100 rounded-2xl animate-pulse" />
+});
 
 interface MapSectionProps {
   location: string;
+  latitude?: number;
+  longitude?: number;
 }
 
-export function MapSection({ location }: MapSectionProps) {
+export function MapSection({ location, latitude, longitude }: MapSectionProps) {
   return (
     <div className="py-12 border-b border-neutral-200">
       <h2 className="text-[22px] font-semibold mb-6">Where you'll be</h2>
       <p className="mb-6">{location}</p>
       
-      {/* Map Placeholder based on screenshot */}
-      <div className="w-full h-[480px] bg-neutral-200 rounded-xl relative overflow-hidden flex items-center justify-center">
-        {/* We would use react-leaflet or google maps here. 
-            For now, showing a visual placeholder as requested. */}
-        <div className="absolute inset-0 bg-[#e5e3df]">
-            {/* Fake map lines */}
-            <div className="absolute top-1/4 left-0 w-full h-1 bg-white opacity-50 rotate-12"></div>
-            <div className="absolute top-1/2 left-0 w-full h-2 bg-white opacity-70 -rotate-6"></div>
-            <div className="absolute left-1/3 top-0 h-full w-2 bg-white opacity-60"></div>
-            
-            {/* Center pin area */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-                <div className="w-32 h-32 bg-black/10 rounded-full flex items-center justify-center">
-                    <div className="w-12 h-12 bg-black rounded-full text-white flex items-center justify-center shadow-lg">
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+      {/* Real Map */}
+      <div className="w-full h-[480px] rounded-xl overflow-hidden shadow-sm border border-gray-200">
+        {latitude && longitude ? (
+          <MapInner latitude={latitude} longitude={longitude} />
+        ) : (
+          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+            <p className="text-gray-500">Location not available</p>
+          </div>
+        )}
       </div>
       
       <div className="mt-6">

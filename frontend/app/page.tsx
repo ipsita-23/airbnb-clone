@@ -52,6 +52,8 @@ export default async function Home({
     rating: '4.9',
     image: l.image ? (l.image.startsWith('http') ? l.image : `${BACKEND}${l.image}`) : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
     description: l.description || '',
+    latitude: l.latitude,
+    longitude: l.longitude,
   })) : []
 
   const filtered = isSearching && where
