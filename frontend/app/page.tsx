@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { Navbar } from "@/components/navbar";
 import { PropertySection } from "@/components/property-section";
 import { FloatingPriceToggle } from "@/components/floating-price-toggle";
@@ -25,6 +26,22 @@ export default async function Home({
 }) {
   const params = await searchParams;
   const { where, checkin, checkout, guests } = params;
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get('access_token')?.value;
+  let userEmail = undefined;
+  if (token) {
+    try {
+      const authRes = await fetch(`${BACKEND}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      if (authRes.ok) {
+        const json = await authRes.json();
+        userEmail = json.email;
+      }
+    } catch (e) {}
+  }
   const isSearching = !!(where || checkin || guests);
   const listings = await fetchListings()
   const ALL_PROPERTIES = listings && Array.isArray(listings) ? listings.map(l => ({
@@ -49,7 +66,7 @@ export default async function Home({
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <Navbar userEmail={userEmail} />
 
       {isSearching && <FilterBar />}
 

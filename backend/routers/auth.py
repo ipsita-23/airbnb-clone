@@ -11,7 +11,7 @@ from dependencies import _get_token_from_request
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # default 24 hours
-ACCESS_TOKEN_SHORT_MINUTES = 60  # 1 hour
+ACCESS_TOKEN_SHORT_MINUTES = 60 * 24 * 7  # 7 days
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 

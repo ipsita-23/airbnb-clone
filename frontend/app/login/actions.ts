@@ -27,7 +27,7 @@ export async function login(formData: FormData) {
   // set HttpOnly cookie for frontend using Next.js cookies API
   try {
     const cookieStore = await cookies();
-    cookieStore.set({ name: 'access_token', value: json.access_token, httpOnly: true, path: '/' })
+    cookieStore.set({ name: 'access_token', value: json.access_token, httpOnly: true, path: '/', maxAge: 60 * 60 * 24 * 7 })
   } catch (e) {
     // best-effort; continue
   }
@@ -63,7 +63,7 @@ export async function signup(formData: FormData) {
     const json = await tokenRes.json()
     try {
       const cookieStore = await cookies();
-      cookieStore.set({ name: 'access_token', value: json.access_token, httpOnly: true, path: '/' })
+      cookieStore.set({ name: 'access_token', value: json.access_token, httpOnly: true, path: '/', maxAge: 60 * 60 * 24 * 7 })
     } catch {}
   }
 

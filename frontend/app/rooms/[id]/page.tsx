@@ -24,11 +24,15 @@ export default async function RoomPage({ params }: { params: Promise<{ id: strin
 
   // determine current user to show host controls
   let currentUser = null
-  try {
-    const token = null // server-side we rely on cookies in /private flow; try /auth/me
-    const meRes = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/auth/me` : 'http://localhost:8000/auth/me', { cache: 'no-store' })
-    if (meRes.ok) currentUser = await meRes.json()
-  } catch {}
+  if (token) {
+    try {
+      const meRes = await fetch(process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/auth/me` : 'http://localhost:8000/auth/me', { 
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store' 
+      })
+      if (meRes.ok) currentUser = await meRes.json()
+    } catch {}
+  }
 
   // Mock Data fallback
   const mockFeatures = [
